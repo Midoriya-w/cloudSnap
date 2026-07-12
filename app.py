@@ -8,7 +8,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')
 def home():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory('frontend', 'index.html')
+
+@app.route('/frontend/<path:filename>')
+def frontend_files(filename):
+    return send_from_directory('frontend', filename)
 
 @app.route('/upload', methods=['POST'])
 def upload():
