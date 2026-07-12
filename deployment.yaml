@@ -17,6 +17,12 @@ spec:
           image: midoriya543/cloud-native-app
           ports:
             - containerPort: 5000
+          volumeMounts:
+            - name: uploads-storage
+              mountPath: /app/uploads
+      volumes:
+        - name: uploads-storage
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
