@@ -183,3 +183,59 @@ function triggerUploadAnimation() {
     } catch (err) {}
   }, 10);
 }
+const bgCanvas = document.getElementById("bgCanvas");
+const bgContext = bgCanvas.getContext("2d");
+const backgroundMouse = { x: -1000, y: -1000 };
+const gridSpacing = 50;
+let backgroundWidth;
+let backgroundHeight;
+let backgroundGrid = [];
+
+function initBackground() {
+  backgroundWidth = bgCanvas.width = window.innerWidth;
+  backgroundHeight = bgCanvas.height = window.innerHeight;
+  backgroundGrid = [];
+
+  for (let x = 0; x < backgroundWidth; x += gridSpacing) {
+    for (let y = 0; y < backgroundHeight; y += gridSpacing) {
+      backgroundGrid.push({ x, y, homeX: x, homeY: y });
+    }
+  }
+}
+
+function drawBackground() {
+  bgContext.clearRect(0, 0, backgroundWidth, backgroundHeight);
+
+  backgroundGrid.forEach((point) => {
+    const dx = backgroundMouse.x - point.x;
+    const dy = backgroundMouse.y - point.y;
+    const distance = Math.hypot(dx, dy);
+    const maxDistance = 200;
+
+    if (distance < maxDistance) {
+      const force = (maxDistance - distance) / maxDistance;
+      point.x -= dx * force * 0.05;
+      point.y -= dy * force * 0.05;
+    }
+
+    point.x += (point.homeX - point.x) * 0.1;
+    point.y += (point.homeY - point.y) * 0.1;
+
+    const alpha = 0.05 + (distance < maxDistance ? 0.15 * (1 - distance / maxDistance) : 0);
+    bgContext.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+    bgContext.beginPath();
+    bgContext.arc(point.x, point.y, 1.5, 0, Math.PI * 2);
+    bgContext.fill();
+  });
+
+  requestAnimationFrame(drawBackground);
+}
+
+window.addEventListener("resize", initBackground);
+window.addEventListener("mousemove", (event) => {
+  backgroundMouse.x = event.clientX;
+  backgroundMouse.y = event.clientY;
+});
+
+initBackground();
+drawBackground();

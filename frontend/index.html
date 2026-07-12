@@ -9,17 +9,18 @@
     @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
   </style>
 
-  <link rel="stylesheet" href="/frontend/style.css" />
-  <script src="/frontend/main.js" defer></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="main.js" defer></script>
 </head>
 <body>
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
   <input id="fileInput" type="file" accept="image/*" multiple />
   <div class="app-shell">
     <div class="window">
       <nav class="titlebar">
         <div class="titlebar-left">
           <div class="logo-mark">
-          <img src="/frontend/cloudsnap icon.png" alt="CloudSnap icon" width="60" height="60" />
+            <img src="cloudsnap icon.png" alt="CloudSnap icon" width="60" height="60" />
           </div>
           <div class="logo">Cloud<span>Snap</span></div>
         </div>
@@ -161,7 +162,7 @@
               <g id="custom-svg-wrapper" filter="url(#element-shadow)">
                 <rect x="-42" y="-42" width="84" height="84" rx="20" fill="#2c2c2e" stroke="#d4d4d8" stroke-width="2"/>
                 <image
-                  href="/frontend/cloudsnap icon tp.png"
+                  href="cloudsnap icon tp.png"
                   x="-24"
                   y="-24"
                   width="50"
@@ -170,6 +171,11 @@
                 />
               </g>
             </g>
+
+            <path d="M 500 642 L 500 700" class="network-line" />
+            <path d="M 500 642 L 500 700" class="data-flow">
+              <animate attributeName="stroke-dashoffset" from="24" to="0" dur="1s" repeatCount="indefinite" />
+            </path>
           </svg>
 
             
