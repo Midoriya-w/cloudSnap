@@ -155,15 +155,20 @@ function updateCount() {
   countBadge.textContent = `${count} file${count !== 1 ? "s" : ""}`;
 }
 
-async function copyLink(url) {
+ async function copyLink(url) {
   try {
     await navigator.clipboard.writeText(url);
     showToast("Copied");
   } catch {
-    showToast("Copy failed");
+    const el = document.createElement("textarea");
+    el.value = url;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+    showToast("Copied");
   }
 }
-
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
