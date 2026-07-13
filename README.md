@@ -89,8 +89,8 @@ kubectl get services
 - [x] Dockerize application
 - [x] Deploy on Kubernetes with 3 replicas
 - [x] Push image to Docker Hub
-- [ ] GitHub Actions CI/CD pipeline
-- [ ] Deploy on AWS EC2
+- [x] GitHub Actions CI/CD pipeline
+- [x] Deploy on AWS EC2
 - [ ] NGINX Ingress setup
 - [ ] Prometheus + Grafana monitoring
 
