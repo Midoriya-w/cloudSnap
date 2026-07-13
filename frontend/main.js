@@ -12,7 +12,7 @@ const dropPulse = document.getElementById("drop-pulse");
 const animMotion = document.getElementById("upload-motion");
 const animOpacity = document.getElementById("upload-opacity");
 
-loadImages();
+//loadImages();
 
 dropZone.addEventListener("click", () => {
   fileInput.click();
@@ -127,7 +127,7 @@ function addImageRow(url, filename) {
   updateCount();
 }
 
-async function loadImages() {
+async function  loadImages() {
   try {
     const res = await fetch("/images");
     if (!res.ok) throw new Error("Load failed");
