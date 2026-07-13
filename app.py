@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify, send_from_directory
 import os
 import uuid
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
+
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
