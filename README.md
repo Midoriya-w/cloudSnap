@@ -91,8 +91,7 @@ kubectl get services
 - [x] Push image to Docker Hub
 - [x] GitHub Actions CI/CD pipeline
 - [x] Deploy on AWS EC2
-- [ ] NGINX Ingress setup
-- [ ] Prometheus + Grafana monitoring
+- [x] Prometheus + Grafana monitoring
 
 ---
 
