@@ -181,7 +181,12 @@ Project guide: **Dr. Sibendu Samanta**, Assistant Professor, SRM University AP
 
 ## 📄 Research Paper
 
-This project is documented in a full IEEE-format research paper covering system architecture, implementation, testing, and evaluation — available in this repository.
+- [x] Dockerize application
+- [x] Deploy on Kubernetes with 3 replicas
+- [x] Push image to Docker Hub
+- [x] GitHub Actions CI/CD pipeline
+- [x] Deploy on AWS EC2
+- [x] Prometheus + Grafana monitoring
 
 ---
 
