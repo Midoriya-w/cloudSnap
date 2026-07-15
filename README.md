@@ -1,103 +1,193 @@
-# ☁️ Cloud-Native App Deployment Framework
+# ☁️ CloudSnap
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
-![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+A cloud-native image hosting platform, built to demonstrate an end-to-end DevOps pipeline — from containerization through orchestration, CI/CD, cloud deployment, and real-time monitoring.
 
-A production-ready cloud-native web application containerized with Docker and orchestrated using Kubernetes. Demonstrates a complete DevOps workflow from code to deployment.
+Built as part of a research paper: **"Design and Implementation of a Cloud-Native Application Deployment Framework Using Docker and Kubernetes"**
+
+---
+
+## 🚀 What This Project Demonstrates
+
+- **Containerization** — Flask app packaged with Docker
+- **Orchestration** — 3 replicas running on Kubernetes (Minikube), behind a NodePort Service
+- **CI/CD** — GitHub Actions automatically builds and pushes a new image to Docker Hub on every push
+- **Cloud Hosting** — Live on AWS EC2 with a static Elastic IP
+- **Monitoring** — Prometheus scrapes live metrics from every pod; Grafana visualizes request rate and pod uptime
+- **Resilience** — Verified Kubernetes automatically recovers crashed pods without manual intervention
 
 ---
 
 ## 🏗️ Architecture
 
-Developer → GitHub → GitHub Actions → Docker Build → Docker Hub
-↓
-Kubernetes Cluster (AWS EC2)
-↙ ↓ ↘
-Pod 1 Pod 2 Pod 3
-↓
-NGINX Ingress Controller
-↓
-Prometheus + Grafana
-
----
-
-## 🔄 CI/CD Flow
-
-1. Developer pushes code to GitHub
-2. GitHub Actions triggers automatically
-3. Docker image is built and pushed to Docker Hub
-4. Kubernetes pulls latest image and redeploys
-5. 3 replicas running for high availability
-6. Prometheus scrapes metrics, Grafana visualizes
-
----
-
-## 🛠️ Tech Stack
-
-| Tool           | Purpose                 |
-| -------------- | ----------------------- |
-| Flask          | Web Application         |
-| Docker         | Containerization        |
-| Kubernetes     | Container Orchestration |
-| AWS EC2        | Cloud Infrastructure    |
-| GitHub Actions | CI/CD Automation        |
-| NGINX Ingress  | Traffic Routing         |
-| Prometheus     | Metrics Collection      |
-| Grafana        | Monitoring Dashboard    |
-
----
-
-## 🚀 Getting Started
-
-### Run with Docker
-
-```bash
-docker pull midoriya543/cloud-native-app
-docker run -d -p 5000:5000 midoriya543/cloud-native-app
+```
+Developer → GitHub Repo → GitHub Actions (CI/CD) → Docker Hub
+                                                        ↓
+                                    ┌───────────────────┴───────────────────┐
+                                    ↓                                       ↓
+                    Kubernetes Cluster (Minikube)                  AWS EC2 Instance
+                    3 Pod Replicas + NodePort Service              Docker Container + Elastic IP
+                                    ↓
+                    Prometheus (ServiceMonitor) → Grafana Dashboard
 ```
 
-### Deploy on Kubernetes
+---
+
+## 🧰 Tech Stack
+
+| Layer            | Tool                      |
+| ---------------- | ------------------------- |
+| Application      | Flask (Python)            |
+| Containerization | Docker                    |
+| Orchestration    | Kubernetes (Minikube)     |
+| CI/CD            | GitHub Actions            |
+| Cloud Hosting    | AWS EC2 (Elastic IP)      |
+| Monitoring       | Prometheus + Grafana      |
+| Metrics Export   | prometheus_flask_exporter |
+
+---
+
+## 📦 Getting Started on Your Own Machine
+
+### Prerequisites
+
+Make sure you have these installed:
+
+- [Python 3.11+](https://www.python.org/downloads/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Minikube](https://minikube.sigs.k8s.io/docs/start/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [Helm](https://helm.sh/docs/intro/install/) (for Prometheus/Grafana)
+- Git
+
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Midoriya-w/cloud-native-app.git
-cd cloud-native-app
+git clone https://github.com/Midoriya-w/cloudSnap.git
+cd cloudSnap
+```
+
+### 2. Run it locally (without Docker)
+
+```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\Activate.ps1
+# macOS/Linux
+source .venv/bin/activate
+
+pip install -r requirements.txt
+python app.py
+```
+
+App will be running at **http://localhost:5000**
+Metrics available at **http://localhost:5000/metrics**
+
+### 3. Run it with Docker
+
+```bash
+docker build -t cloud-native-app .
+docker run -d --name cloudsnap-app -p 5000:5000 cloud-native-app
+```
+
+Or pull the pre-built image directly:
+
+```bash
+docker pull midoriya543/cloud-native-app:latest
+docker run -d --name cloudsnap-app -p 5000:5000 midoriya543/cloud-native-app:latest
+```
+
+### 4. Deploy to Kubernetes (Minikube)
+
+```bash
 minikube start
 kubectl apply -f deployment.yaml
-minikube service cloud-native-app-service
+kubectl get pods       # confirm 3 pods are Running
+kubectl get services    # confirm the NodePort service
+
+minikube service cloud-native-app-service   # opens the app in your browser
 ```
 
-### Check pods
+### 5. Set up monitoring (Prometheus + Grafana)
 
 ```bash
-kubectl get pods
-kubectl get services
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install monitoring prometheus-community/kube-prometheus-stack
+
+kubectl apply -f service-monitor.yaml
+```
+
+Get the Grafana admin password:
+
+```bash
+kubectl get secrets monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 -d
+```
+
+Access Grafana:
+
+```bash
+kubectl port-forward svc/monitoring-grafana 3000:80
+```
+
+Then open **http://localhost:3000** and log in with username `admin` and the password above.
+
+---
+
+## 🔁 CI/CD Pipeline
+
+Every push to `master` triggers `.github/workflows/` to:
+
+1. Check out the repository
+2. Build a new Docker image
+3. Push it to Docker Hub as `midoriya543/cloud-native-app:latest`
+
+No manual rebuild or redeploy needed — just push your code.
+
+---
+
+## 📊 Monitoring
+
+- Prometheus scrapes `/metrics` from every pod every 15 seconds via a `ServiceMonitor`
+- Grafana dashboard **"CloudSnap Monitoring"** tracks:
+  - Request rate (`rate(flask_http_request_total[5m])`)
+  - Pod uptime (`up{job="cloud-native-app-service"}`)
+
+---
+
+## 📁 Project Structure
+
+```
+cloudSnap/
+├── app.py                  # Flask application
+├── Dockerfile               # Container build instructions
+├── deployment.yaml          # Kubernetes Deployment + Service
+├── service-monitor.yaml     # Prometheus ServiceMonitor
+├── requirements.txt         # Python dependencies
+├── frontend/                 # UI (HTML/CSS/JS)
+├── .github/workflows/        # CI/CD pipeline
+└── README.md
 ```
 
 ---
 
-## 📦 Docker Hub
+## 👥 Contributors
 
-[midoriya543/cloud-native-app](https://hub.docker.com/r/midoriya543/cloud-native-app)
+- **Ch. Dinesh Sai Vardhan** — Technical implementation
+- **Ch. S. M. Harsha** — Documentation and literature review
 
----
-
-## 🔮 Roadmap
-
-- [x] Dockerize application
-- [x] Deploy on Kubernetes with 3 replicas
-- [x] Push image to Docker Hub
-- [x] GitHub Actions CI/CD pipeline
-- [x] Deploy on AWS EC2
-- [ ] NGINX Ingress setup
-- [ ] Prometheus + Grafana monitoring
+Project guide: **Dr. Sibendu Samanta**, Assistant Professor, SRM University AP
 
 ---
 
-## 👤 Author
+## 📄 Research Paper
 
-**Ch. Dinesh**
+This project is documented in a full IEEE-format research paper covering system architecture, implementation, testing, and evaluation — available in this repository.
 
-[![GitHub](https://img.shields.io/badge/GitHub-Midoriya--w-black?style=flat&logo=github)](https://github.com/Midoriya-w)
+---
+
+## 🔮 Future Work
+
+- NGINX Ingress for host/path-based routing and TLS termination
+- Horizontal Pod Autoscaling driven by Prometheus metrics
+- Automated testing in the CI/CD pipeline
+- Grafana alerting for pod failures
